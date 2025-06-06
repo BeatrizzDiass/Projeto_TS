@@ -1,0 +1,15 @@
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\bin\Debug\Projeto_TS.exe.config
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\bin\Debug\Projeto_TS.exe
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\bin\Debug\Projeto_TS.pdb
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.csproj.AssemblyReference.cache
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.FormInicio.resources
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.Properties.Resources.resources
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.csproj.GenerateResource.cache
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.csproj.CoreCompileInputs.cache
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.exe
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.pdb
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.FormLogin.resources
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.FormRegistar.resources
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.FormChat.resources
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\bin\Debug\ProtocolSI.dll
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.csproj.Up2Date
