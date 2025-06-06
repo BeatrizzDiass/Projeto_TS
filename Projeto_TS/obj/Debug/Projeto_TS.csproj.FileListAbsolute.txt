@@ -13,3 +13,5 @@ C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.For
 C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.FormChat.resources
 C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\bin\Debug\ProtocolSI.dll
 C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\obj\Debug\Projeto_TS.csproj.Up2Date
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\bin\Debug\BDProjetoTS.mdf
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Projeto_TS\bin\Debug\BDProjetoTS_log.ldf
