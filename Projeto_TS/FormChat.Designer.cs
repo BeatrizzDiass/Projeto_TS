@@ -87,6 +87,7 @@
             this.btnEnviar.Size = new System.Drawing.Size(104, 49);
             this.btnEnviar.TabIndex = 4;
             this.btnEnviar.UseVisualStyleBackColor = true;
+            this.btnEnviar.Click += new System.EventHandler(this.btnEnviar_Click);
             // 
             // textBoxMensagem
             // 
