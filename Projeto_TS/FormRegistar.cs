@@ -112,7 +112,7 @@ namespace Projeto_TS
 
 
                 // Declaração do comando SQL
-                String sql = "INSERT INTO Users (Username, SaltedPasswordHash, Salt, ) VALUES (@username,@saltedPasswordHash,@salt)";
+                String sql = "INSERT INTO Users (Username, SaltedPasswordHash, Salt) VALUES (@username,@saltedPasswordHash,@salt)";
 
                 // Prepara comando SQL para ser executado na Base de Dados
                 SqlCommand cmd = new SqlCommand(sql, conn);
