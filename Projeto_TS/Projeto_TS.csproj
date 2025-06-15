@@ -48,7 +48,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ProtocolSI">
+    <Reference Include="ProtocolSI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\ProtocoloISI\ProtocolSI.dll</HintPath>
     </Reference>
     <Reference Include="System" />

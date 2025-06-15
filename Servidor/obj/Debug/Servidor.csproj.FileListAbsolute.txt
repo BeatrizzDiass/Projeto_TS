@@ -5,3 +5,5 @@ C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Servidor\obj\Debug\Servidor.csproj.
 C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Servidor\obj\Debug\Servidor.csproj.CoreCompileInputs.cache
 C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Servidor\obj\Debug\Servidor.exe
 C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Servidor\obj\Debug\Servidor.pdb
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Servidor\bin\Debug\ProtocolSI.dll
+C:\Users\beatr\Documents\1_ano\TS\Projeto_TS\Servidor\obj\Debug\Servidor.csproj.Up2Date

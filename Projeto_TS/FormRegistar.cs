@@ -110,6 +110,7 @@ namespace Projeto_TS
                 SqlParameter paramPassHash = new SqlParameter("@saltedPasswordHash", saltedPasswordHash);
                 SqlParameter paramSalt = new SqlParameter("@salt", salt);
 
+
                 // Declaração do comando SQL
                 String sql = "INSERT INTO Users (Username, SaltedPasswordHash, Salt) VALUES (@username,@saltedPasswordHash,@salt)";
 
@@ -163,6 +164,8 @@ namespace Projeto_TS
             String pass = textBoxPass.Text;
             String username = textBoxUser.Text;
 
+
+
             byte[] salt = GenerateSalt(SALTSIZE);
             byte[] hash = GenerateSaltedHash(pass, salt);
 
@@ -170,6 +173,7 @@ namespace Projeto_TS
 
             if (success)
             {
+
                 FormLogin formLogin = new FormLogin();
                 formLogin.Show();
                 this.Hide();

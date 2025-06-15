@@ -1,10 +1,12 @@
-﻿using System;
+﻿using EI.SI;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
+using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,14 +19,13 @@ namespace Projeto_TS
 
         private const int SALTSIZE = 8;
         private const int NUMBER_OF_ITERATIONS = 1000;
+        private RSACryptoServiceProvider rsa;
 
         public FormLogin()
         {
             InitializeComponent();
             //this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
         }
-
-
 
         private bool VerifyLogin(string username, string password)
         {
@@ -104,19 +105,7 @@ namespace Projeto_TS
             String password = textBoxPass.Text;
             String username = textBoxUser.Text;
 
-            if (VerifyLogin(username, password))
-            {
-                MessageBox.Show("Login successful!");
 
-                // ir para o form do chat
-                FormChat formChat = new FormChat();
-                formChat.Show();
-                this.Hide();
-            }
-            else
-            {
-                MessageBox.Show("Login failed. Please check your username and password.");
-            }
         }
 
       
