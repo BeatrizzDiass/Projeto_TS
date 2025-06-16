@@ -68,7 +68,6 @@
             this.listBoxMensagens.Name = "listBoxMensagens";
             this.listBoxMensagens.Size = new System.Drawing.Size(631, 620);
             this.listBoxMensagens.TabIndex = 2;
-            this.listBoxMensagens.SelectedIndexChanged += new System.EventHandler(this.listBoxMensagens_SelectedIndexChanged);
             // 
             // buttonSair
             // 

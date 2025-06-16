@@ -9,6 +9,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+
 
 namespace Projeto_TS
 {
@@ -17,6 +19,8 @@ namespace Projeto_TS
 
         private const int SALTSIZE = 8;
         private const int NUMBER_OF_ITERATIONS = 1000;
+
+        //private RSACryptoServiceProvider rsa;
 
         public FormRegistar()
         {
@@ -80,7 +84,7 @@ namespace Projeto_TS
             }
             catch (Exception e)
             {
-                MessageBox.Show("An error occurred: " + e.Message);
+                MessageBox.Show("Ocorreu um erro: " + e.Message);
                 return false;
             }
         }
@@ -130,14 +134,14 @@ namespace Projeto_TS
                 if (lines == 0)
                 {
                     // Se forem devolvidas 0 linhas alteradas então o não foi executado com sucesso
-                    throw new Exception("Error while inserting an user");
+                    throw new Exception("Erro ao inserir um utilizador!");
                 }
-                MessageBox.Show("User registered successfully!");
+                MessageBox.Show("Utilizador registado com sucesso!");
                 return true; // Adicionado retorno de sucesso
             }
             catch (Exception e)
             {
-                throw new Exception("Error while inserting an user:" + e.Message);
+                throw new Exception("Erro ao inserir um utilizador!" + e.Message);
             }
             finally
             {
@@ -161,10 +165,19 @@ namespace Projeto_TS
         private void buttonRegistar_Click(object sender, EventArgs e)
         {
 
-            String pass = textBoxPass.Text;
-            String username = textBoxUser.Text;
+            string username = textBoxUser.Text;
+            if (string.IsNullOrEmpty(username))
+            {
+                MessageBox.Show("Por favor, introduza um nome de utilizador.");
+                return;
+            }
 
-
+            string pass = textBoxPass.Text;
+            if (string.IsNullOrEmpty(pass))
+            {
+                MessageBox.Show("Por favor, introduza uma password.");
+                return;
+            }
 
             byte[] salt = GenerateSalt(SALTSIZE);
             byte[] hash = GenerateSaltedHash(pass, salt);
@@ -173,12 +186,29 @@ namespace Projeto_TS
 
             if (success)
             {
+                // Inicializar o RSA e gerar chaves
+              /*  rsa = new RSACryptoServiceProvider(2048);
 
+                string publicKey = rsa.ToXmlString(false); // chave pública
+                string privateKey = rsa.ToXmlString(true); // chave privada
+
+                string folderPath = AppDomain.CurrentDomain.BaseDirectory;
+
+                // Guardar chaves no diretório da aplicação
+                File.WriteAllText(Path.Combine(folderPath, "publicKey.txt"), publicKey);
+                File.WriteAllText(Path.Combine(folderPath, "privateKey.txt"), privateKey);*/
+
+                // Abrir formulário de login
                 FormLogin formLogin = new FormLogin();
                 formLogin.Show();
                 this.Hide();
             }
 
+
+        }
+
+        private void FormRegistar_Load(object sender, EventArgs e)
+        {
 
         }
     }

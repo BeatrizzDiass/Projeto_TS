@@ -10,39 +10,87 @@ namespace Projeto_TS
 {
     public partial class FormChat : Form
     {
+        // Porta utilizada para a conexão TCP
         private const int PORT = 10000;
-        private TcpClient client;
-        private NetworkStream networkStream;
-        private ProtocolSI protocolSI;
-        private Thread receiveThread;
+        // Stream de rede para comunicação
+        NetworkStream networkStream;
+        // Instância do protocolo utilizado para empacotar/desempacotar mensagens
+        ProtocolSI protocolSI;
+        // Cliente TCP
+        TcpClient client;
 
-        public FormChat()
+        private string nomeUsuario;
+
+        public FormChat(string nomeUsuario)
         {
             InitializeComponent();
-            ConnectToServer();
+            this.nomeUsuario = nomeUsuario;
+
+            // Define o endpoint para localhost na porta especificada
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 10000);
+            client = new TcpClient();
+            client.Connect(endPoint);
+            networkStream = client.GetStream();
+            protocolSI = new ProtocolSI();
+
+            // 🔁 Envia o nome do usuário ao servidor após conectar
+            byte[] nomePacket = protocolSI.Make(ProtocolSICmdType.USER_OPTION_1, nomeUsuario);
+            networkStream.Write(nomePacket, 0, nomePacket.Length);
+
+            // Inicia a escuta em background
+            Task.Run(() => ListenServer());
         }
 
-        private void ConnectToServer()
+        private void btnEnviar_Click(object sender, EventArgs e)
         {
-            try
-            {
-                IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, PORT);
-                client = new TcpClient();
-                client.Connect(endPoint);
-                networkStream = client.GetStream();
-                protocolSI = new ProtocolSI();
+            // ✅ CORREÇÃO: usar textBoxMensagem em vez de listBoxMensagens
+            string mesg = textBoxMensagem.Text;
 
-                // Inicia a thread para ouvir mensagens
-                receiveThread = new Thread(ListenServer);
-                receiveThread.IsBackground = true;
-                receiveThread.Start();
-            }
-            catch (Exception ex)
+            // Verificar se a mensagem não está vazia
+            if (string.IsNullOrWhiteSpace(mesg))
             {
-                MessageBox.Show("Erro ao conectar ao servidor: " + ex.Message);
+                return; // Não envia mensagens vazias
             }
+
+            textBoxMensagem.Clear();
+            byte[] packet = protocolSI.Make(ProtocolSICmdType.DATA, mesg);
+            networkStream.Write(packet, 0, packet.Length);
+
+            // ⚠️ REMOVER O BLOCO ABAIXO:
+            /*
+            while (true)
+            {
+                networkStream.Read(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
+                if (protocolSI.GetCmdType() == ProtocolSICmdType.ACK)
+                    break;
+            }
+            */
         }
 
+
+        // Método para fechar a conexão com o servidor
+        private void CloseClient()
+        {
+            // Cria e envia o pacote de fim de transmissão (EOT)
+            byte[] eot = protocolSI.Make(ProtocolSICmdType.EOT);
+            networkStream.Write(eot, 0, eot.Length);
+
+            // Aguarda resposta do servidor antes de fechar
+            networkStream.Read(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
+            // Fecha o stream de rede
+            networkStream.Close();
+            // Fecha o cliente TCP
+            client.Close();
+        }
+
+        private void buttonSair_Click(object sender, EventArgs e)
+        {
+            // Fecha a conexão e encerra o formulário
+            CloseClient();
+            this.Close();
+        }
+
+        // Thread para escutar mensagens do servidor e atualizar a listBox1
         private void ListenServer()
         {
             try
@@ -52,116 +100,46 @@ namespace Projeto_TS
                     int bytesRead = networkStream.Read(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
                     if (bytesRead > 0)
                     {
-                        ProtocolSICmdType cmdType = protocolSI.GetCmdType();
-
-                        if (cmdType == ProtocolSICmdType.DATA)
+                        var cmd = protocolSI.GetCmdType();
+                        if (cmd == ProtocolSICmdType.DATA)
                         {
                             string msg = protocolSI.GetStringFromData();
-                            AddMessageToListBox("Servidor: " + msg);
-                        }
-                        else if (cmdType == ProtocolSICmdType.EOT)
-                        {
-                            AddMessageToListBox("Conexão encerrada pelo servidor.");
-                            break;
-                        }
-                        else if (cmdType == ProtocolSICmdType.ACK)
-                        {
-                            // Pode ser tratado se necessário
+
+                            // Atualiza a interface de forma thread-safe
+                            if (listBoxMensagens.InvokeRequired)
+                            {
+                                listBoxMensagens.Invoke((MethodInvoker)delegate {
+                                    // Adiciona timestamp às mensagens
+                                    string mensagemComHora = $"[{DateTime.Now:HH:mm:ss}] {msg}";
+                                    listBoxMensagens.Items.Add(mensagemComHora);
+
+                                    // Auto-scroll para a mensagem mais recente
+                                    listBoxMensagens.TopIndex = listBoxMensagens.Items.Count - 1;
+                                });
+                            }
+                            else
+                            {
+                                string mensagemComHora = $"[{DateTime.Now:HH:mm:ss}] {msg}";
+                                listBoxMensagens.Items.Add(mensagemComHora);
+                                listBoxMensagens.TopIndex = listBoxMensagens.Items.Count - 1;
+                            }
                         }
                     }
                 }
             }
             catch (ObjectDisposedException)
             {
-                // Conexão fechada, ignorar
+                // Ignora exceção ao fechar o formulário/conexão
             }
             catch (Exception ex)
             {
-                AddMessageToListBox("Erro na recepção: " + ex.Message);
-            }
-            finally
-            {
-                FecharConexao();
-                Application.Exit();
-            }
-        }
-
-        private void AddMessageToListBox(string mensagem)
-        {
-            if (listBoxMensagens.InvokeRequired)
-            {
-                listBoxMensagens.Invoke(new Action<string>(AddMessageToListBox), mensagem);
-            }
-            else
-            {
-                listBoxMensagens.Items.Add(mensagem);
-            }
-        }
-
-        private void EnviarMensagem(string texto)
-        {
-            if (string.IsNullOrWhiteSpace(texto))
-                return;
-
-            try
-            {
-                byte[] packet = protocolSI.Make(ProtocolSICmdType.DATA, texto);
-                networkStream.Write(packet, 0, packet.Length);
-
-                // Espera ACK
-                WaitForAck();
-
-                AddMessageToListBox("Você: " + texto);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Erro ao enviar mensagem: " + ex.Message);
-            }
-        }
-
-        private void WaitForAck()
-        {
-            while (true)
-            {
-                int bytesRead = networkStream.Read(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
-                if (bytesRead > 0)
+                // Só mostra erro se ainda estiver conectado
+                if (client.Connected)
                 {
-                    if (protocolSI.GetCmdType() == ProtocolSICmdType.ACK)
-                        break;
-                }
-            }
-        }
-
-        private void buttonEnviar_Click(object sender, EventArgs e)
-        {
-            EnviarMensagem(textBoxMensagem.Text);
-            textBoxMensagem.Clear();
-        }
-
-        private void buttonSair_Click(object sender, EventArgs e)
-        {
-            FecharConexao();
-            this.Close();
-        }
-
-        private void FecharConexao()
-        {
-            if (client != null && client.Connected)
-            {
-                try
-                {
-                    // Envia EOT
-                    byte[] eot = protocolSI.Make(ProtocolSICmdType.EOT);
-                    networkStream.Write(eot, 0, eot.Length);
-
-                    // Opcional: aguarda confirmação
-                    networkStream.Read(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
-                }
-                catch { }
-                finally
-                {
-                    networkStream.Close();
-                    client.Close();
+                    this.Invoke((MethodInvoker)delegate {
+                        MessageBox.Show("Erro na recepção de mensagens: " + ex.Message, "Erro",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    });
                 }
             }
         }

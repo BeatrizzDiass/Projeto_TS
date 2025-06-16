@@ -11,6 +11,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+
 
 namespace Projeto_TS
 {
@@ -19,7 +21,7 @@ namespace Projeto_TS
 
         private const int SALTSIZE = 8;
         private const int NUMBER_OF_ITERATIONS = 1000;
-        private RSACryptoServiceProvider rsa;
+       // private RSACryptoServiceProvider rsa;
 
         public FormLogin()
         {
@@ -81,7 +83,7 @@ namespace Projeto_TS
             }
             catch (Exception e)
             {
-                MessageBox.Show("An error occurred: " + e.Message);
+                MessageBox.Show("Ocorreu um erro: " + e.Message);
                 return false;
             }
         }
@@ -102,11 +104,87 @@ namespace Projeto_TS
 
         private void buttonLogin_Click(object sender, EventArgs e)
         {
-            String password = textBoxPass.Text;
-            String username = textBoxUser.Text;
+            string username = textBoxUser.Text;
+            if (username == "")
+            {
+                MessageBox.Show("Por favor, introduza um nome de utilizador.");
+                return;
+            }
+
+            string pass = textBoxPass.Text;
+            if (pass == "")
+            {
+                MessageBox.Show("Por favor, introduza uma password.");
+                return;
+            }
+
+            bool success = VerifyLogin(username, pass);
+            if (!success)
+            {
+                MessageBox.Show("Credenciais inválidas.");
+                return;
+            }
+            else
+            {
+                string nomeUsuario = textBoxUser.Text;
+                FormChat formChat = new FormChat(nomeUsuario);
+                formChat.Show();
+                this.Hide();
+            }
 
 
-        }
+
+                /*
+                try
+                {
+                    // Conectar ao servidor
+                    TcpClient client = new TcpClient("127.0.0.1", 10000); // ajusta se necessário
+                    NetworkStream networkStream = client.GetStream();
+                    ProtocolSI protocolSI = new ProtocolSI();
+
+                    // Ler a chave pública do ficheiro
+                    string publicKey = File.ReadAllText("publicKey.txt");
+                    MessageBox.Show(publicKey, "Chave Pública (cliente)");
+
+                    byte[] publicKeyMsg = protocolSI.Make(ProtocolSICmdType.USER_OPTION_1, publicKey);
+                    networkStream.Write(publicKeyMsg, 0, publicKeyMsg.Length);
+
+                    // Esperar pela resposta do servidor (chave AES cifrada)
+                    networkStream.Read(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
+
+                    if (protocolSI.GetCmdType() == ProtocolSICmdType.USER_OPTION_2)
+                    {
+                        byte[] encryptedAesKey = protocolSI.GetData();
+
+                        // Ler chave privada
+                        string privateKeyXml = File.ReadAllText("privateKey.txt");
+                        RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
+                        rsa.FromXmlString(privateKeyXml);
+
+                        // Descifrar a chave AES
+                        byte[] aesKeyAndIV = rsa.Decrypt(encryptedAesKey, false);
+                        byte[] aesKey = aesKeyAndIV.Take(32).ToArray();  // AES-256 key
+                        byte[] aesIV = aesKeyAndIV.Skip(32).ToArray();   // IV
+
+                        MessageBox.Show("Chave simétrica recebida e descifrada com sucesso!");
+
+                        // Aqui podes guardar aesKey e aesIV para uso futuro
+                    }
+                    else
+                    {
+                        MessageBox.Show("Erro: tipo de mensagem inesperado do servidor.");
+                    }
+
+                    // Se tudo correr bem, abrir o FormChat
+                    FormChat formChat = new FormChat();
+                    formChat.Show();
+                    this.Hide();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Erro ao comunicar com o servidor: " + ex.Message);
+                }*/
+            }
 
       
 
