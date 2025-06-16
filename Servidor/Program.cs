@@ -1,14 +1,12 @@
-﻿using EI.SI;
+﻿
+// ===== SERVIDOR - Program.cs =====
+using EI.SI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
-
-
 
 namespace Servidor
 {
@@ -26,6 +24,8 @@ namespace Servidor
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, PORT);
             TcpListener listener = new TcpListener(endPoint);
 
+
+
             listener.Start();
             Console.WriteLine("SERVIDOR PRONTO");
 
@@ -36,15 +36,14 @@ namespace Servidor
                 TcpClient client = listener.AcceptTcpClient();
                 clientCounter++;
                 Console.WriteLine($"Cliente {clientCounter} conectado.");
+                
 
                 ClientHandler handler = new ClientHandler(client, clientCounter);
-
                 lock (clientesLock)
                 {
                     clientes.Add(handler);
                 }
                 handler.Start();
-
             }
         }
 
@@ -84,6 +83,7 @@ namespace Servidor
         private NetworkStream networkStream;
         private ProtocolSI protocolSI;
         private Thread thread;
+        private string nomeUsuario = null;
 
         public ClientHandler(TcpClient client, int clientId)
         {
@@ -104,32 +104,52 @@ namespace Servidor
         {
             try
             {
+                // 1. Primeiro, receber o nome do usuário (USER_OPTION_1)
+                int bytesRead = networkStream.Read(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
+                if (bytesRead == 0) return;
+
+                var firstCmd = protocolSI.GetCmdType();
+                if (firstCmd == ProtocolSICmdType.USER_OPTION_1)
+                {
+                    nomeUsuario = protocolSI.GetStringFromData();
+
+                    // ✅ Mensagem na consola do servidor
+                    string mensagemEntrada = $"🟢 Cliente{clientId} ({nomeUsuario}) entrou no chat!";
+                    Console.WriteLine(mensagemEntrada);
+
+                    // Broadcast para todos os clientes
+                    Program.Broadcast(mensagemEntrada, clientId);
+                }
+                else
+                {
+                    // Se não receber nome primeiro, desconecta
+                    return;
+                }
+
+                // 2. Depois, continua recebendo mensagens normalmente
                 while (true)
                 {
-                    int bytesRead = networkStream.Read(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
+                    bytesRead = networkStream.Read(protocolSI.Buffer, 0, protocolSI.Buffer.Length);
                     if (bytesRead == 0) break;
 
                     var cmd = protocolSI.GetCmdType();
                     if (cmd == ProtocolSICmdType.DATA)
                     {
                         string mensagem = protocolSI.GetStringFromData();
-                        string mensagemFormatada = $"Cliente {clientId}: {mensagem}";
+                        string mensagemFormatada = $"{nomeUsuario}: {mensagem}";
                         Console.WriteLine(mensagemFormatada);
 
-                        // Broadcast para todos os clientes
                         Program.Broadcast(mensagemFormatada, clientId);
 
-                        // Envia ACK para o remetente
                         byte[] ack = protocolSI.Make(ProtocolSICmdType.ACK);
                         networkStream.Write(ack, 0, ack.Length);
                     }
                     else if (cmd == ProtocolSICmdType.EOT)
                     {
-                        string saida = $"Cliente {clientId} saiu do chat.";
+                        string saida = $"🔴 Cliente{clientId} ({nomeUsuario}) saiu do chat.";
                         Console.WriteLine(saida);
                         Program.Broadcast(saida, clientId);
 
-                        // Envia ACK para o remetente
                         byte[] ack = protocolSI.Make(ProtocolSICmdType.ACK);
                         networkStream.Write(ack, 0, ack.Length);
                         break;
@@ -138,7 +158,9 @@ namespace Servidor
             }
             catch
             {
-                // Cliente desconectou abruptamente
+                string desconexaoAbrupta = $"⚠️ Cliente{clientId} ({nomeUsuario ?? "Desconhecido"}) desconectou abruptamente.";
+                Console.WriteLine(desconexaoAbrupta);
+                Program.Broadcast(desconexaoAbrupta, clientId);
             }
             finally
             {
@@ -151,8 +173,16 @@ namespace Servidor
         // Envia mensagem para este cliente
         public void SendMessage(string mensagem)
         {
-            byte[] data = protocolSI.Make(ProtocolSICmdType.DATA, mensagem);
-            networkStream.Write(data, 0, data.Length);
+            try
+            {
+                byte[] data = protocolSI.Make(ProtocolSICmdType.DATA, mensagem);
+                networkStream.Write(data, 0, data.Length);
+            }
+            catch
+            {
+                // Cliente pode ter desconectado
+            }
         }
     }
+
 }
